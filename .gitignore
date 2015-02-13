@@ -11,3 +11,11 @@ public
 node_modules
 temp/
 npm-debug.log
+
+.idea
+
+*.zip
+*.gz
+
+!dist/zepto.min.js
+!dist/zepto.js
