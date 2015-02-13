@@ -84,6 +84,7 @@ report_size = (file) ->
   echo "#{file}: #{format_number(fsize(file) / 1024)} KiB"
 
 describe_version = ->
+  return version
   desc = exec "git --git-dir='#{root + '.git'}' describe --tags HEAD", silent: true
   if desc.code is 0 then desc.output.replace(/\s+$/, '') else version
 

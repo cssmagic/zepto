@@ -17,5 +17,6 @@ npm-debug.log
 *.zip
 *.gz
 
+!dist/
 !dist/zepto.min.js
 !dist/zepto.js
