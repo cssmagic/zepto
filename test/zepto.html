@@ -55,6 +55,7 @@
   <div id="attr_1" data-id="someId1" data-name="someName1"></div>
   <div id="attr_2" data-id="someId2" data-name="someName2"></div>
   <div id="attr_remove" data-name="boom"></div>
+  <div id="attr_remove_multi" data-id="someId1" data-name="someName1"></div>
   <form><input id="attr_val" value="Hello World"></form>
 
   <div id="data_attr" data-foo="bar" data-foo-bar="baz" data-empty></div>
@@ -320,6 +321,14 @@
         'Expected length %d, got %d.', expected, actual)
     }
 
+    Evidence.Assertions.assertZeptoCollection = function(expectedLength, object, message) {
+      if (!$.zepto.isZ(object))
+        this._assertExpression(false, message || 'Failed assertion.',
+          'Expected %o to be a Zepto collection.', object)
+      else
+        this.assertLength(expectedLength, object, message)
+    }
+
     Evidence.Assertions.assertEqualCollection = function(expectedCollection, actualCollection, message) {
       var expected = expectedCollection, actual = actualCollection,
           passed = expected.length == actual.length
@@ -529,11 +538,11 @@
       },
 
       testDollarWithNil: function(t){
-        t.assertLength(0, $(null))
-        t.assertLength(0, $(undefined))
-        t.assertLength(0, $(false))
-        t.assertLength(0, $(''))
-        t.assertLength(0, $('#'))
+        t.assertZeptoCollection(0, $(null))
+        t.assertZeptoCollection(0, $(undefined))
+        t.assertZeptoCollection(0, $(false))
+        t.assertZeptoCollection(0, $(''))
+        t.assertZeptoCollection(0, $('#'))
 
         var Z1 = $(null), Z2 = $(null)
         t.assert(Z1 !== Z2)
@@ -541,7 +550,7 @@
 
       testDollarWithNonDOM: function(t){
         var zepto = $(['a', 'b', 'c'])
-        t.assertLength(3, zepto)
+        t.assertZeptoCollection(3, zepto)
         t.assertEqualCollection(['a', 'b', 'c'], zepto)
 
         t.assert($({}))
@@ -718,7 +727,7 @@
       },
 
       testDollarWithDoctypeInFragment: function(t){
-        t.assertLength(0, $('<!DOCTYPE html>'))
+        t.assertZeptoCollection(0, $('<!DOCTYPE html>'))
       },
 
       testNodeCreationViaDollar: function (t) {
@@ -891,12 +900,12 @@
 
       testEq: function(t){
         var $els = $('#eq_test div')
-        t.assertLength(1, $els.eq(0))
-        t.assertLength(1, $els.eq(-1))
+        t.assertZeptoCollection(1, $els.eq(0))
+        t.assertZeptoCollection(1, $els.eq(-1))
         t.assertEqual($els.eq(-1)[0].className, 'eq2')
         t.assertUndefined($els.eq(-1).tagName)
 
-        t.assertLength(0, $('nonexistent').eq(0))
+        t.assertZeptoCollection(0, $('nonexistent').eq(0))
       },
 
       testFirst: function(t){
@@ -1387,14 +1396,10 @@
 
       testFindWithFalsyValue: function(t){
         var element = '<div><a>1</a></div>';
-        var found = $(element).find(undefined)
-        t.assertLength(0, found)
-        found = $(element).find(false)
-        t.assertLength(0, found)
-        found = $(element).find(0)
-        t.assertLength(0, found)
-        found = $(element).find('')
-        t.assertLength(0, found)
+        t.assertZeptoCollection(0, $(element).find(undefined))
+        t.assertZeptoCollection(0, $(element).find(false))
+        t.assertZeptoCollection(0, $(element).find(0))
+        t.assertZeptoCollection(0, $(element).find(''))
       },
 
       testFilter: function(t){
@@ -1808,6 +1813,16 @@
         el.removeAttr('data-name')
         t.assertNull(el.attr('data-name'))
       },
+      
+      testRemoveMultipleAttr: function(t) {
+        var el = $('#attr_remove_multi')
+        t.assertEqual('someId1', el.attr('data-id'))
+        t.assertEqual('someName1', el.attr('data-name'))
+        
+        el.removeAttr('data-id data-name')
+        t.assertNull(el.attr('data-id'))
+        t.assertNull(el.attr('data-name'))
+      },
 
       testRemoveAttrNoElement: function(t){
         t.assert($().removeAttr('rel'))
@@ -1852,11 +1867,14 @@
         var el = $('<div data-num=42 />')
         t.assertIdentical(42, el.data('num'))
 
+        t.assertIdentical(42.5,
+          $('<div data-float=42.5 />').data('float'))
+
         t.assertIdentical("08",
           $('<div data-notnum=08 />').data('notnum'))
 
-        t.assertIdentical(111111111111111111111111111111111,
-          $('<div data-bignum="111111111111111111111111111111111" />').data('bignum'))
+        t.assertIdentical("5903509451651483504",
+          $('<div data-bignum="5903509451651483504" />').data('bignum'))
       },
 
       testDataBooleanType: function(t){
@@ -2343,6 +2361,17 @@
 
         $('#some_element').removeClass()
         t.assertEqual('', el.className)
+      },
+
+      testWindowClasses: function(t){
+        // check that window is agnostic to class related functions
+        $(window).removeClass('non-existing-class')
+        t.refute('className' in window)
+        $(window).addClass('some-class')
+        t.refute('className' in window)
+        t.refute($(window).hasClass('some-class'))
+        $(window).toggleClass('some-class')
+        t.refute('className' in window)
       },
 
       testHasClass: function(t){

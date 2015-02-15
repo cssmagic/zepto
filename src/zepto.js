@@ -288,7 +288,7 @@ var Zepto = (function() {
 
   // access className property while respecting SVGAnimatedString
   function className(node, value){
-    var klass = node.className,
+    var klass = node.className || '',
         svg   = klass && klass.baseVal !== undefined
 
     if (value === undefined) return svg ? klass.baseVal : klass
@@ -310,7 +310,7 @@ var Zepto = (function() {
         value == "true" ||
         ( value == "false" ? false :
           value == "null" ? null :
-          !/^0/.test(value) && !isNaN(num = Number(value)) ? num :
+          +value + "" == value ? +value :
           /^[\[\{]/.test(value) ? $.parseJSON(value) :
           value )
         : value
@@ -478,7 +478,7 @@ var Zepto = (function() {
     },
     find: function(selector){
       var result, $this = this
-      if (!selector) result = []
+      if (!selector) result = $()
       else if (typeof selector == 'object')
         result = $(selector).filter(function(){
           var node = this
@@ -619,7 +619,9 @@ var Zepto = (function() {
         })
     },
     removeAttr: function(name){
-      return this.each(function(){ this.nodeType === 1 && setAttribute(this, name) })
+      return this.each(function(){ this.nodeType === 1 && name.split(' ').forEach(function(attribute){
+        setAttribute(this, attribute)
+      }, this)})
     },
     prop: function(name, value){
       name = propMap[name] || name
@@ -672,13 +674,14 @@ var Zepto = (function() {
     },
     css: function(property, value){
       if (arguments.length < 2) {
-        var element = this[0], computedStyle = getComputedStyle(element, '')
+        var computedStyle, element = this[0]
         if(!element) return
+        computedStyle = getComputedStyle(element, '')
         if (typeof property == 'string')
           return element.style[camelize(property)] || computedStyle.getPropertyValue(property)
         else if (isArray(property)) {
           var props = {}
-          $.each(isArray(property) ? property: [property], function(_, prop){
+          $.each(property, function(_, prop){
             props[prop] = (element.style[camelize(prop)] || computedStyle.getPropertyValue(prop))
           })
           return props
@@ -713,6 +716,7 @@ var Zepto = (function() {
     addClass: function(name){
       if (!name) return this
       return this.each(function(idx){
+        if (!('className' in this)) return
         classList = []
         var cls = className(this), newName = funcArg(this, name, idx, cls)
         newName.split(/\s+/g).forEach(function(klass){
@@ -723,6 +727,7 @@ var Zepto = (function() {
     },
     removeClass: function(name){
       return this.each(function(idx){
+        if (!('className' in this)) return
         if (name === undefined) return className(this, '')
         classList = className(this)
         funcArg(this, name, idx, classList).split(/\s+/g).forEach(function(klass){
