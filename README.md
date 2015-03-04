@@ -1,6 +1,6 @@
 # Zepto
 
-> Zepto is a minimalist JavaScript library for modern browsers with a largely jQuery-compatible API.
+> Zepto is a minimalist JavaScript library for modern browsers with a largely jQuery-compatible API. ([More...](http://zeptojs.com/))
 
 This fork of Zepto strictly keeps source code untouched, while optimizing for Bower.
 
@@ -12,15 +12,15 @@ This fork of Zepto strictly keeps source code untouched, while optimizing for Bo
 
 ## Usage
 
-1. Install via Bower:
+0. Install via Bower:
 
 	```bash
 	$ bower install zepto.js
 	```
 
-2. Use `dist/zepto.js` for default package.
+0. Use `dist/zepto.js` for default package.
 
-	Or, Use `src/*.js` to build a custom package (just simply `concat` all modules you need).
+0. Besides, use `src/*.js` to build a custom package (just simply `concat` all modules you need).
 
 ## Who are using?
 
