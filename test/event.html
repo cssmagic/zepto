@@ -274,6 +274,21 @@
         t.assertEqual(1, numArgs)
         t.assertIdentical(data, gotData)
       },
+      
+      testHandlerWithFunctionAsData: function(t){
+        var data = function () { console.log('foo') },
+            gotData, numArgs
+        
+        $(document).on('click', data, function(event){
+          gotData = event.data
+          numArgs = arguments.length
+        })
+        t.assertUndefined(gotData)
+
+        click(this.el)
+        t.assertEqual(1, numArgs)
+        t.assertIdentical(data, gotData)
+      },
 
       testDelegatedWithData: function(t){
         var data = {}, gotData, numArgs
@@ -388,6 +403,16 @@
         var event = $.Event('click')
 
         this.el.on('click', false)
+
+        this.el.trigger(event)
+        t.assertTrue(event.isDefaultPrevented())
+        t.assertTrue(event.isPropagationStopped())
+      },
+
+      testFalseLiteralAsCallbackForShorthand: function(t){
+        var event = $.Event('click')
+
+        this.el.click(false)
 
         this.el.trigger(event)
         t.assertTrue(event.isDefaultPrevented())
