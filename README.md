@@ -14,7 +14,7 @@ This fork of Zepto strictly keeps source code untouched, while optimizing for Bo
 
 0. Install via Bower:
 
-	```bash
+	```sh
 	$ bower install zepto.js
 	```
 
